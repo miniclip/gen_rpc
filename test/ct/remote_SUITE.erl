@@ -111,7 +111,7 @@ call(_Config) ->
     {_Mega, _Sec, _Micro} = gen_rpc:call(?SLAVE, os, timestamp).
 
 call_mfa_undef(_Config) ->
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}} = gen_rpc:call(?SLAVE, os, timestamp_undef).
+    {badrpc, {'EXIT', {undef}}} = gen_rpc:call(?SLAVE, os, timestamp_undef).
 
 call_mfa_exit(_Config) ->
     {badrpc, {'EXIT', die}} = gen_rpc:call(?SLAVE, erlang, exit, ['die']).
@@ -203,9 +203,9 @@ async_call_yield_reentrant(_Config) ->
 
 async_call_mfa_undef(_Config) ->
     YieldKey = gen_rpc:async_call(?SLAVE, os, timestamp_undef),
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}} = gen_rpc:yield(YieldKey),
+    {badrpc, {'EXIT', {undef}}} = gen_rpc:yield(YieldKey),
     NBYieldKey = gen_rpc:async_call(?SLAVE, os, timestamp_undef),
-    {value, {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}}} = gen_rpc:nb_yield(NBYieldKey, 50),
+    {value, {badrpc, {'EXIT', {undef}}}} = gen_rpc:nb_yield(NBYieldKey, 50),
     ok = ct:pal("Result [async_call_mfa_undef]: signal=EXIT Reason={os,timestamp_undef}").
 
 async_call_mfa_exit(_Config) ->

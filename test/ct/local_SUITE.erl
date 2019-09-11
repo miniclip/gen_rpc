@@ -126,11 +126,11 @@ call_anonymous_function(_Config) ->
                                                      ["call_anonymous_function"]]).
 
 call_anonymous_undef(_Config) ->
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,[],[]},_]}}}  = gen_rpc:call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
+    {badrpc, {'EXIT', {undef}}}  = gen_rpc:call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
    ok = ct:pal("Result [call_anonymous_undef]: signal=EXIT Reason={os,timestamp_undef}").
 
 call_mfa_undef(_Config) ->
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}} = gen_rpc:call(?MASTER, os, timestamp_undef),
+    {badrpc, {'EXIT', {undef}}} = gen_rpc:call(?MASTER, os, timestamp_undef),
     ok = ct:pal("Result [call_mfa_undef]: signal=EXIT Reason={os,timestamp_undef}").
 
 call_mfa_exit(_Config) ->
@@ -243,16 +243,16 @@ async_call_anonymous_function(_Config) ->
 
 async_call_anonymous_undef(_Config) ->
     YieldKey = gen_rpc:async_call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,[],[]},_]}}} = gen_rpc:yield(YieldKey),
+    {badrpc, {'EXIT', {undef}}} = gen_rpc:yield(YieldKey),
     NBYieldKey = gen_rpc:async_call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
-    {value, {badrpc, {'EXIT', {undef,[{os,timestamp_undef,[],[]},_]}}}} = gen_rpc:nb_yield(NBYieldKey, 500),
+    {value, {badrpc, {'EXIT', {undef}}}} = gen_rpc:nb_yield(NBYieldKey, 500),
     ok = ct:pal("Result [async_call_anonymous_undef]: signal=EXIT Reason={os,timestamp_undef}").
 
 async_call_mfa_undef(_Config) ->
     YieldKey = gen_rpc:async_call(?MASTER, os, timestamp_undef),
-    {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}} = gen_rpc:yield(YieldKey),
+    {badrpc, {'EXIT', {undef}}} = gen_rpc:yield(YieldKey),
     NBYieldKey = gen_rpc:async_call(?MASTER, os, timestamp_undef),
-    {value, {badrpc, {'EXIT', {undef,[{os,timestamp_undef,_,_},_]}}}} = gen_rpc:nb_yield(NBYieldKey, 500),
+    {value, {badrpc, {'EXIT', {undef}}}} = gen_rpc:nb_yield(NBYieldKey, 500),
     ok = ct:pal("Result [async_call_mfa_undef]: signal=EXIT Reason={os,timestamp_undef}").
 
 async_call_mfa_exit(_Config) ->

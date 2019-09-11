@@ -65,9 +65,9 @@ listen(Port) when is_integer(Port) ->
 -spec accept(ssl:sslsocket()) -> ok | {error, term()}.
 accept(Socket) when is_tuple(Socket) ->
     {ok, TSocket} = ssl:transport_accept(Socket, infinity),
-    case ssl:ssl_accept(TSocket) of
-        ok ->
-            {ok, TSocket};
+    case upgrade_ssl_socket(TSocket) of
+        {ok, SSLSocket} ->
+            {ok, SSLSocket};
         Error ->
             Error
     end.
@@ -248,3 +248,12 @@ set_socket_keepalive({unix, linux}, Socket) ->
 
 set_socket_keepalive(_Unsupported, _Socket) ->
     ok.
+
+-ifdef(post19).
+upgrade_ssl_socket(Socket) ->
+    ssl:handshake(Socket).
+-else.
+upgrade_ssl_socket(Socket) ->
+    ssl:ssl_accept(Socket),
+    {ok, Socket}.
+-endif.
