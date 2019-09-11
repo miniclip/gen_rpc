@@ -267,7 +267,7 @@ call_middleman(M, F, A) ->
           catch
                throw:Term -> Term;
                exit:Reason -> {badrpc, {'EXIT', Reason}};
-               error:Reason:Stacktrace -> {badrpc, {'EXIT', {Reason, Stacktrace}}}
+               error:Reason -> {badrpc, {'EXIT', {Reason}}}
           end,
     erlang:exit({call_middleman_result, Res}),
     ok.
