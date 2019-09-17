@@ -1,0 +1,8 @@
+{"1.1.0",
+[{<<"hut">>,{pkg,<<"hut">>,<<"1.2.0">>},0},
+ {<<"ssl_verify_fun">>,{pkg,<<"ssl_verify_fun">>,<<"1.1.5">>},0}]}.
+[
+{pkg_hash,[
+ {<<"hut">>, <<"0089DF0FAA2827C605BBADA88153F24FFF5EA7A4BE32ECF0250A7FDC2719CAFB">>},
+ {<<"ssl_verify_fun">>, <<"6EAF7AD16CB568BB01753DBBD7A95FF8B91C7979482B95F38443FE2C8852A79B">>}]}
+].
