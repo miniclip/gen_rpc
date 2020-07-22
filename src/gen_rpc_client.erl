@@ -236,7 +236,7 @@ init({Node}) ->
     ok = gen_rpc_helper:set_optimal_process_flags(),
     case gen_rpc_helper:get_client_config_per_node(Node) of
         {error, Reason} ->
-            ?log(error, "event=external_source_error action=falling_back_to_local reason=\"~s\"", [Reason]),
+            ?log(error, "event=external_source_error action=falling_back_to_local reason=\"~p\"", [Reason]),
             {stop, {badrpc, {external_source_error, Reason}}};
         {Driver, Port} ->
             {DriverMod, DriverClosed, DriverError} = gen_rpc_helper:get_client_driver_options(Driver),
