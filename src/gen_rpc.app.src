@@ -9,9 +9,9 @@
     {vsn, git},
     {mod, {gen_rpc_app, []}},
     {registered, [gen_rpc_dispatcher]},
-    {maintainers, ["Panagiotis PJ Papadomitsos"]},
+    {maintainers, ["Miniclip"]},
     {licenses, ["Apache 2.0"]},
-    {links, [{"Github", "https://github.com/priestjim/gen_rpc"}]},
+    {links, [{"Github", "https://github.com/miniclip/gen_rpc"}]},
     {files, [
         "LICENSE",
         "README.md",
@@ -21,6 +21,7 @@
         "rebar.config",
         "src"
     ]},
+    {pkg_name, mc_gen_rpc},
     {applications, [kernel, stdlib, crypto, asn1, public_key, ssl]},
     {env,[
         %% TCP server port. Set to false to disable

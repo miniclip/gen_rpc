@@ -26,10 +26,17 @@
 %%% Supervisor callbacks
 -export([init/1]).
 
+-ignore_xref(start_link/0).
+-ignore_xref(stop_child/1).
+
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================
+-if(?OTP_RELEASE > 23).
 -spec start_link() -> supervisor:startlink_ret().
+-else.
+-spec start_link() -> {ok, pid()} | ignore | {error, {already_started, pid()} | {shutdown, term()} | term()}.
+-endif.
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 

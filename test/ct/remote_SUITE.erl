@@ -10,8 +10,7 @@
 %%% CT Macros
 -include_lib("test/include/ct.hrl").
 
-%%% No need to export anything, everything is automatically exported
-%%% as part of the test profile
+-compile(export_all).
 
 %%% ===================================================
 %%% CT callback functions
@@ -152,6 +151,7 @@ cast_anonymous_function(_Config) ->
 cast_mfa_undef(_Config) ->
     true = gen_rpc:cast(?SLAVE, os, timestamp_undef, []).
 
+-dialyzer({nowarn_function, cast_mfa_exit/1}).
 cast_mfa_exit(_Config) ->
     true = gen_rpc:cast(?SLAVE, erlang, apply, [fun() -> exit(die) end, []]).
 

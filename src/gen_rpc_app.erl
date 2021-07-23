@@ -19,10 +19,13 @@
 %%% Development start/stop functions
 -export([start/0, stop/0]).
 
+-ignore_xref(start/0).
+-ignore_xref(stop/0).
+
 %%% ===================================================
 %%% Application callbacks
 %%% ===================================================
--spec start(application:start_type(), term()) -> {error,any()} | {ok,pid()} | {ok,pid(),any()}.
+-spec start(application:start_type(), term()) -> {error,any()} | {ok,pid()}.
 start(_StartType, _StartArgs) ->
     gen_rpc_sup:start_link().
 

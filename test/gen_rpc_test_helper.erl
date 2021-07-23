@@ -25,7 +25,34 @@
         spawn_long_running/1,
         spawn_short_running/0,
         stub_function/0,
-        ping/1]).
+        ping/1,
+        restart_application/0]).
+
+-define(DEFAULT_DRIVER, tcp).
+-define(TEST_APPLICATION_ENV, [{sasl, errlog_type, error},
+        {sasl, error_logger_mf_dir, false},
+        {?APP, tcp_server_port, false},
+        {?APP, ssl_server_port, false},
+        {?APP, client_config_per_node, {internal, #{
+            ?MASTER => ?MASTER_PORT,
+            ?SLAVE => ?SLAVE_PORT
+        }}},
+        {?APP, connect_timeout, 500},
+        {?APP, send_timeout, 500},
+        {lager, log_root, "./log"},
+        {lager, crash_log, "crash.log"},
+        {lager, crash_log_size, 0},
+        {lager, colored, false},
+        {lager, handlers, [
+            %% Commented out to reduce test output polution, uncomment during development
+            % {lager_common_test_backend, [debug,
+            %     {lager_default_formatter, ["[", date, " ", time, "] severity=", severity, " node=\"", {node, "undefined"}, "\" pid=\"", pid,
+            %         "\" module=", {module, "gen_rpc"}, " function=", {function, "undefined"}, " ", message, "\n"]}]},
+            {lager_file_backend, [{file, "messages.log"}, {level, debug}, {formatter, lager_default_formatter}, {size, 0}, {date, "$D0"}, {count, 7},
+                {formatter_config, ["[", date, " ", time, "] severity=", severity, " node=\"", {node, "undefined"}, "\" pid=\"", pid,
+                    "\" module=", {module, "gen_rpc"}, " function=", {function, "undefined"}, " ", message, "\n"]}]}
+        ]}
+]).
 
 %%% ===================================================
 %%% Public API
@@ -85,7 +112,7 @@ set_application_environment(?SLAVE) ->
     ok.
 
 set_driver_configuration(ssl, ?MASTER) ->
-    Prefix = filename:join(["..", "..", ".."]),
+    Prefix = filename:join(["..", "..", "..", ".."]),
     CertFile = filename:join([Prefix, "priv", "ssl", atom_to_list(?MASTER)]),
     CaFile = filename:join([Prefix, "priv", "ssl", "ca.cert.pem"]),
     ok = application:set_env(?APP, default_client_driver, ssl, [{persistent, true}]),
@@ -101,7 +128,7 @@ set_driver_configuration(ssl, ?MASTER) ->
     ok;
 
 set_driver_configuration(ssl, ?SLAVE) ->
-    Prefix = filename:join(["..", "..", ".."]),
+    Prefix = filename:join(["..", "..", "..", ".."]),
     CertFile = filename:join([Prefix, "priv", "ssl", atom_to_list(?SLAVE)]),
     CaFile = filename:join([Prefix, "priv", "ssl", "ca.cert.pem"]),
     ok = rpc:call(?SLAVE, application, set_env, [?APP, default_client_driver, ssl, [{persistent, true}]]),
@@ -177,6 +204,7 @@ make_process_name(Node, Tag) when is_binary(Tag) ->
 spawn_long_running(TimeSpan) ->
     spawn(fun() -> timer:sleep(TimeSpan) end).
 
+-dialyzer({nowarn_function, spawn_short_running/0}).
 spawn_short_running() ->
     spawn(fun() -> exit(normal) end).
 

@@ -10,7 +10,7 @@
 
 -callback listen(inet:port_number()) -> {ok, term()} | {error, term()}.
 
--callback accept(term()) -> ok | {error, term()}.
+-callback accept(term()) -> {ok, gen_tcp:socket() | ssl:sslsocket()} | {error, term()}.
 
 -callback activate_socket(term()) -> ok.
 
@@ -29,6 +29,9 @@
 -callback set_send_timeout(term(), timeout() | undefined) -> ok.
 
 -callback set_acceptor_opts(term()) -> ok.
+
+-ignore_xref(stub/0).
+-ignore_xref(behaviour_info/1).
 
 -ifdef(TEST).
 %% Stub function to fool code coverage

@@ -6,6 +6,9 @@
 
 -module(gen_rpc_client_config).
 
+-ignore_xref(stub/0).
+-ignore_xref(behaviour_info/1).
+
 -callback get_config(atom()) -> {tcp | ssl, inet:port_number()} | {error, term()}.
 
 -ifdef(TEST).

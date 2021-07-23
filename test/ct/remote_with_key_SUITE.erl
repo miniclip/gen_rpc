@@ -10,8 +10,7 @@
 %%% CT Macros
 -include_lib("test/include/ct.hrl").
 
-%%% No need to export anything, everything is automatically exported
-%%% as part of the test profile
+-compile(export_all).
 
 %%% ===================================================
 %%% CT callback functions
@@ -143,7 +142,7 @@ random_local_tcp_close(_Config) ->
     true = erlang:exit(AccPid, kill),
     ok = timer:sleep(600), % Give some time to the supervisor to kill the children
     [?MASTER] = rpc:call(?SLAVE, gen_rpc, nodes, []),
-    [_Other] = supervisor:which_children(gen_rpc_acceptor_sup),
+    [_Other2] = supervisor:which_children(gen_rpc_acceptor_sup),
     [_Client] = rpc:call(?SLAVE, supervisor, which_children, [gen_rpc_client_sup]).
 
 random_remote_tcp_close(_Config) ->
@@ -154,7 +153,7 @@ random_remote_tcp_close(_Config) ->
     ok = timer:sleep(600),
     [?SLAVE] = gen_rpc:nodes(),
     [_Client] = supervisor:which_children(gen_rpc_client_sup),
-    [_Other] = rpc:call(?SLAVE, supervisor, which_children, [gen_rpc_acceptor_sup]).
+    [_Other2] = rpc:call(?SLAVE, supervisor, which_children, [gen_rpc_acceptor_sup]).
 
 %%% ===================================================
 %%% Auxiliary functions for test cases

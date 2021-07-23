@@ -10,8 +10,7 @@
 %%% CT Macros
 -include_lib("test/include/ct.hrl").
 
-%%% No need to export anything, everything is automatically exported
-%%% as part of the test profile
+-compile(export_all).
 
 %%% ===================================================
 %%% CT callback functions
