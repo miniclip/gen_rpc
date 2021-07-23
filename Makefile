@@ -1,4 +1,5 @@
 # Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+# Copyright 2021 Miniclip. All Rights Reserved.
 
 SHELL := bash
 .ONESHELL:

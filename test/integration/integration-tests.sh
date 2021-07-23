@@ -1,5 +1,6 @@
 #!/bin/bash -l
 # Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+# Copyright 2021 Miniclip. All Rights Reserved.
 #
 # Used to run automated integration tests using Docker
 #
