@@ -310,7 +310,3 @@ This project is published and distributed under the [Apache License](LICENSE).
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md)
-
-### Contributors
-
-- [Edward Tsang](https://github.com/linearregression)
