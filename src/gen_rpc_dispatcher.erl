@@ -30,10 +30,15 @@
 -export([init/1, handle_call/3, handle_cast/2,
         handle_info/2, terminate/2, code_change/3]).
 
+-ignore_xref(start_link/0).
+-ignore_xref(stop/0).
+
+-elvis([{elvis_style, state_record_and_type, disable}]).
+
 %%% ===================================================
 %%% Public API
 %%% ===================================================
--spec start_link() -> gen_server:startlink_ret().
+-spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     gen_server:start_link({local,?MODULE}, ?MODULE, [], []).
 

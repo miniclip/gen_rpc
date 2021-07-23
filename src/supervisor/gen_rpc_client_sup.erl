@@ -26,6 +26,9 @@
 %%% Supervisor callbacks
 -export([init/1]).
 
+-ignore_xref(start_link/0).
+-ignore_xref(stop_child/1).
+
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================

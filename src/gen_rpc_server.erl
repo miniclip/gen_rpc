@@ -22,6 +22,7 @@
 -record(state, {socket :: port(),
         driver :: atom(),
         driver_mod :: atom()}).
+-elvis([{elvis_style, state_record_and_type, disable}]).
 
 %%% Server functions
 -export([start_link/1, stop/1]).
@@ -32,10 +33,14 @@
 %% State machine states
 -export([waiting_for_connection/3]).
 
+-ignore_xref(start_link/1).
+-ignore_xref(stop/1).
+-ignore_xref(waiting_for_connection/3).
+
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================
--spec start_link(atom()) -> gen_statem:startlink_ret().
+-spec start_link(atom()) -> gen_statem:start_ret().
 start_link(Driver) when is_atom(Driver) ->
     case gen_rpc_helper:is_driver_enabled(Driver) of
         false -> ignore;

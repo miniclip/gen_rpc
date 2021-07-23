@@ -26,6 +26,7 @@
         peer :: {inet:ip4_address(), inet:port_number()},
         control :: whitelist | blacklist | disabled,
         list :: sets:set() | undefined}).
+-elvis([{elvis_style, state_record_and_type, disable}]).
 
 %%% Ignore dialyzer warning for call_middleman
 %%% The non-local return is deliberate
@@ -43,10 +44,17 @@
 %%% Process exports
 -export([call_worker/6, call_middleman/3]).
 
+-ignore_xref(waiting_for_data/3).
+-ignore_xref(call_middleman/3).
+-ignore_xref(start_link/2).
+-ignore_xref(stop/1).
+-ignore_xref(waiting_for_socket/3).
+-ignore_xref(waiting_for_auth/3).
+
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================
--spec start_link(atom(), {inet:ip4_address(), inet:port_number()}) -> gen_statem:startlink_ret().
+-spec start_link(atom(), {inet:ip4_address(), inet:port_number()}) -> gen_statem:start_ret().
 start_link(Driver, Peer) when is_atom(Driver), is_tuple(Peer) ->
     Name = gen_rpc_helper:make_process_name("acceptor", Peer),
     gen_statem:start_link({local,Name}, ?MODULE, {Driver, Peer}, []).
@@ -267,7 +275,7 @@ call_middleman(M, F, A) ->
           catch
                throw:Term -> Term;
                exit:Reason -> {badrpc, {'EXIT', Reason}};
-               error:Reason -> {badrpc, {'EXIT', {Reason, erlang:get_stacktrace()}}}
+               error:Reason:Stacktrace -> {badrpc, {'EXIT', {Reason, Stacktrace}}}
           end,
     erlang:exit({call_middleman_result, Res}),
     ok.

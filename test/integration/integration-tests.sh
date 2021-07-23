@@ -20,9 +20,8 @@ start_node() {
 	docker exec -ti ${NAME} bash -c 'chmod 600 ~/.erlang.cookie'
 	docker exec -ti ${NAME} bash -c 'rm -fr /gen_rpc/*'
 	docker cp ../../ ${NAME}:/
-	docker cp ~/.cache/rebar3 ${NAME}:/root/.cache/rebar3
-	docker exec -ti ${NAME} bash -c 'cd /gen_rpc && make'
-	docker exec -ti -d ${NAME} bash -c "cd /gen_rpc && ./rebar3 as dev do shell --name gen_rpc@${IP}"
+	docker exec -ti ${NAME} bash -c 'cd /gen_rpc && rebar3 as dev compile'
+	docker exec -ti -d ${NAME} bash -c "cd /gen_rpc && rebar3 as dev shell --name gen_rpc@${IP}"
 	return $?
 }
 
@@ -38,10 +37,9 @@ start_master() {
 	docker exec -ti ${NAME} bash -c "chmod 600 ~/.erlang.cookie"
 	docker exec -ti ${NAME} bash -c "rm -fr /gen_rpc/*"
 	docker cp ../../ ${NAME}:/
-	docker cp ~/.cache/rebar3 ${NAME}:/root/.cache/rebar3
-	docker exec -ti ${NAME} bash -c "cd /gen_rpc && make"
+	docker exec -ti ${NAME} bash -c "cd /gen_rpc && rebar3 as dev compile"
 	echo Starting integration tests on container ${NAME}
-	docker exec -ti gen_rpc_master bash -c "export NODES=${NODES} NODE=gen_rpc@${IP} && cd /gen_rpc && make && ./rebar3 as test do ct --suite test/ct/integration_SUITE"
+	docker exec -ti gen_rpc_master bash -c "export NODES=${NODES} NODE=gen_rpc@${IP} && cd /gen_rpc && rebar3 as dev compile && rebar3 ct --suite test/ct/integration_SUITE"
 }
 
 destroy() {

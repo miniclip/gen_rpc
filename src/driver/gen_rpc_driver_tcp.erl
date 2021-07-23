@@ -35,6 +35,23 @@
         set_send_timeout/2,
         set_acceptor_opts/1]).
 
+%%% Default TCP options
+-define(ACCEPTOR_DEFAULT_TCP_OPTS, [binary,
+        {packet,4},
+        {exit_on_close,true},
+        {active,once}]). % Retrieve data from socket upon request
+
+%%% The TCP options that should be copied from the listener to the acceptor
+-define(ACCEPTOR_COPY_TCP_OPTS, [nodelay,
+        show_econnreset,
+        send_timeout_close,
+        delay_send,
+        linger,
+        reuseaddr,
+        keepalive,
+        tos,
+        active]).
+
 %%% ===================================================
 %%% Public API
 %%% ===================================================
@@ -57,7 +74,7 @@ connect(Node, Port) when is_atom(Node) ->
 listen(Port) when is_integer(Port) ->
     gen_tcp:listen(Port, ?TCP_DEFAULT_OPTS).
 
--spec accept(port()) -> ok | {error, term()}.
+-spec accept(port()) -> {ok, gen_tcp:socket()} | {error, atom()}.
 accept(Socket) when is_port(Socket) ->
     gen_tcp:accept(Socket, infinity).
 
@@ -66,7 +83,7 @@ activate_socket(Socket) when is_port(Socket) ->
     ok = inet:setopts(Socket, [{active,once}]),
     ok.
 
--spec send(port(), binary()) -> ok | {error, term()}.
+-spec send(port(), binary()) -> ok | {error, {badtcp, atom() | {timeout, binary()}}}.
 send(Socket, Data) when is_port(Socket), is_binary(Data) ->
     case gen_tcp:send(Socket, Data) of
         {error, timeout} ->
@@ -81,7 +98,7 @@ send(Socket, Data) when is_port(Socket), is_binary(Data) ->
     end.
 
 %% Authenticate to a server
--spec authenticate_server(port()) -> ok | {error, {badtcp | badrpc, term()}}.
+-spec authenticate_server(port()) -> ok | {error, {badtcp, atom() | {timeout, binary()}} | {badrpc, invalid_cookie | invalid_message}}.
 authenticate_server(Socket) ->
     Cookie = erlang:get_cookie(),
     Packet = erlang:term_to_binary({gen_rpc_authenticate_connection, Cookie}),
@@ -182,7 +199,7 @@ get_peer(Socket) when is_port(Socket) ->
     {ok, Peer} = inet:peername(Socket),
     Peer.
 
--spec set_controlling_process(port(), pid()) -> ok | {error, term()}.
+-spec set_controlling_process(port(), pid()) -> ok | {error, atom()}.
 set_controlling_process(Socket, Pid) when is_port(Socket), is_pid(Pid) ->
     gen_tcp:controlling_process(Socket, Pid).
 

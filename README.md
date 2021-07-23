@@ -1,53 +1,28 @@
-# gen_rpc: A scalable RPC library for Erlang-VM based languages
+# gen_rpc: a scalable RPC library for BEAM (Erlang-VM) based languages [![GitHub Actions CI][ci-img]][ci]
+
+[ci]: https://github.com/miniclip/gen_rpc
+[ci-img]: https://github.com/miniclip/gen_rpc/workflows/build/badge.svg
 
 ## Overview
 
 - Latest release: ![Tag Version](https://img.shields.io/github/tag/priestjim/gen_rpc.svg)
-- Branch status (`master`): [![Build Status](https://travis-ci.org/priestjim/gen_rpc.svg?branch=master)](https://travis-ci.org/priestjim/gen_rpc) [![Coverage Status](https://coveralls.io/repos/priestjim/gen_rpc/badge.svg?branch=master&service=github)](https://coveralls.io/github/priestjim/gen_rpc?branch=master)
-- Branch status (`develop`): [![Build Status](https://travis-ci.org/priestjim/gen_rpc.svg?branch=develop)](https://travis-ci.org/priestjim/gen_rpc) [![Coverage Status](https://coveralls.io/repos/priestjim/gen_rpc/badge.svg?branch=develop&service=github)](https://coveralls.io/github/priestjim/gen_rpc?branch=develop)
 - Issues: [![GitHub issues](https://img.shields.io/github/issues/priestjim/gen_rpc.svg)](https://github.com/priestjim/gen_rpc/issues)
 - License: [![GitHub license](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/priestjim/gen_rpc/master/LICENSE)
 - [Erlang Factory 2016 Talk](https://www.youtube.com/watch?feature=player_embedded&v=xiPnLACtNeo)
-
-## Build Dependencies
-
-To build this project you need to have the following:
-
-* **Erlang/OTP** >= 19.1
-
-* **git** >= 1.7
-
-* **GNU make** >= 3.80
-
-* **rebar3** >= 3.2
 
 ## Usage
 
 Getting started with `gen_rpc` is easy. First, add the appropriate dependency line to your `rebar.config`:
 
 ```erlang
-{deps, [
-    {gen_rpc, {git, "https://github.com/priestjim/gen_rpc.git", {branch, "master"}}}
-]}.
+{deps, [{gen_rpc, "~> 2.0"}]}.
 ```
 
-Or if you're using `hex.pm`/`rebar3`:
-
-```erlang
-{deps [
-    {gen_rpc, "~> 2.0"}
-]}.
-```
-
-Or if you're using Elixir/Mix:
+If you're using Elixir/Mix, do:
 
 ```elixir
 def project do
-  [
-    deps: [
-      {:gen_rpc, "~> 2.0"}
-    ]
-  ]
+  [deps: [{:gen_rpc, "~> 2.0"}]]
 ```
 
 Then, add `gen_rpc` as a dependency application to your `.app.src`/`.app` file:
@@ -72,6 +47,7 @@ Finally, start a couple of nodes to test it out:
 (my_app@127.0.0.1)1> gen_rpc:call('other_node@1.2.3.4', erlang, node, []).
 'other_node@1.2.3.4'
 ```
+
 ## API
 
 `gen_rpc` implements only the subset of the functions of the `rpc` library that make sense for the problem it's trying to solve. The library's function interface and return values is **100%** compatible with `rpc` with only one addition: Error return values include `{badrpc, Error}` for RPC-based errors but also `{badtcp, Error}` for TCP-based errors.
@@ -219,40 +195,56 @@ for node configuration management. The module should implement the `gen_rpc_exte
 
 To build `gen_rpc` simply run:
 
-    make
+```bash
+make
+```
 
 To run the full test suite, run:
 
-    make test
+```bash
+make test
+```
 
 To run the full test suite, the XRef tool and Dialyzer, run:
 
-    make dist
+```bash
+make dist
+```
 
 To build the project and drop in a console while developing, run:
 
-    make shell-master
+```bash
+make shell-master
+```
 
 or
 
-    make shell-slave
+```bash
+make shell-slave
+```
 
 If you want to run a "master" and a "slave" `gen_rpc` nodes to run tests.
 
 To clean every build artifact and log, run:
 
-    make distclean
+```bash
+make distclean
+```
 
 ## Testing
 
 A full suite of tests has been implemented for `gen_rpc`. You can run the CT-based test suite, dialyzer and xref by:
 
-    make dist
+```bash
+make dist
+```
 
 If you have **Docker** available on your system, you can run dynamic integration tests with "physically" separated hosts/nodes
 by running the command:
 
-    make integration
+```bash
+make integration
+```
 
 This will launch 3 slave containers and 1 master (change that by `NODES=5 make integration`) and will run the `integration_SUITE` CT test suite.
 
@@ -318,6 +310,6 @@ This project is published and distributed under the [Apache License](LICENSE).
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
-### Contributors:
+### Contributors
 
 - [Edward Tsang](https://github.com/linearregression)
