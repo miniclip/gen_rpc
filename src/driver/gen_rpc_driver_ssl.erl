@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 %%% Original concept inspired and some code copied from
 %%% https://erlangcentral.org/wiki/index.php?title=Building_a_Non-blocking_TCP_server_using_OTP_principles
@@ -16,8 +17,6 @@
 -include_lib("hut/include/hut.hrl").
 %%% Include this library's name macro
 -include("app.hrl").
-%%% Include SSL macros
--include("ssl.hrl").
 %%% Include TCP macros
 -include("tcp.hrl").
 %%% Include helpful guard macros
@@ -36,6 +35,51 @@
         set_controlling_process/2,
         set_send_timeout/2,
         set_acceptor_opts/1]).
+
+%%% Default SSL options common to client and server
+-define(SSL_DEFAULT_COMMON_OPTS, [binary,
+        {packet,0},
+        {header,0},
+        {exit_on_close,true},
+        {nodelay,true}, % Send our requests immediately
+        {send_timeout_close,true}, % When the socket times out, close the connection
+        {delay_send,false}, % Scheduler should favor timely delivery
+        {linger,{true,2}}, % Allow the socket to flush outgoing data for 2" before closing it - useful for casts
+        {reuseaddr,true}, % Reuse local port numbers
+        {keepalive,true}, % Keep our channel open
+        {tos,72}, % Deliver immediately
+        {active,false},
+        %% SSL options.
+        %% Source of `ciphers' and `versions': https://wiki.mozilla.org/Security/Server_Side_TLS
+        {ciphers,[
+            % tlsv1.3
+            "TLS_AES_128_GCM_SHA256",
+            "TLS_AES_256_GCM_SHA384",
+            "TLS_CHACHA20_POLY1305_SHA256",
+            % tlsv1.2
+            "ECDHE-ECDSA-AES256-GCM-SHA384",
+            "ECDHE-RSA-AES256-GCM-SHA384",
+            "ECDHE-ECDSA-AES128-GCM-SHA256",
+            "ECDHE-RSA-AES128-GCM-SHA256",
+            "ECDHE-ECDSA-CHACHA20-POLY1305",
+            "ECDHE-RSA-CHACHA20-POLY1305",
+            "DHE-RSA-AES128-GCM-SHA256",
+            "DHE-RSA-AES256-GCM-SHA384"
+        ]},
+        {secure_renegotiate,true},
+        {reuse_sessions,true},
+        {versions,['tlsv1.3', 'tlsv1.2']},
+        {verify,verify_peer},
+        {hibernate_after,600000},
+        {active,false}]).
+
+-define(SSL_DEFAULT_SERVER_OPTS, [{fail_if_no_peer_cert,true},
+        {log_alert,false},
+        {honor_cipher_order,true},
+        {client_renegotiation,true}]).
+
+-define(SSL_DEFAULT_CLIENT_OPTS, [{server_name_indication,disable},
+        {depth,99}]).
 
 %%% ===================================================
 %%% Public API
@@ -62,17 +106,17 @@ listen(Port) when is_integer(Port) ->
     SslOpts = merge_ssl_options(server, undefined),
     ssl:listen(Port, SslOpts).
 
--spec accept(ssl:sslsocket()) -> ok | {error, term()}.
+-spec accept(ssl:sslsocket()) -> {ok, ssl:sslsocket()} | {error, term()}.
 accept(Socket) when is_tuple(Socket) ->
     {ok, TSocket} = ssl:transport_accept(Socket, infinity),
-    case ssl:ssl_accept(TSocket) of
-        ok ->
-            {ok, TSocket};
+    case ssl:handshake(TSocket) of
+        {ok, SSocket} ->
+            {ok, SSocket};
         Error ->
             Error
     end.
 
--spec send(ssl:sslsocket(), binary()) -> ok | {error, term()}.
+-spec send(ssl:sslsocket(), binary()) -> ok | {error, {badtcp, term()}}.
 send(Socket, Data) when is_tuple(Socket), is_binary(Data) ->
     case ssl:send(Socket, Data) of
         {error, timeout} ->
@@ -183,7 +227,7 @@ authenticate_client(Socket, Peer, Data) ->
             {error, {badtcp,corrupt_data}}
     end.
 
--spec copy_sock_opts(port(), port()) -> ok | {error, any()}.
+-spec copy_sock_opts(port(), port()) -> ok.
 copy_sock_opts(_ListSock, _AccSock) ->
     ok. % SSL copies the socket's options to the acceptor by default
 

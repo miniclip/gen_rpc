@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 -module(gen_rpc_driver).
@@ -10,7 +11,7 @@
 
 -callback listen(inet:port_number()) -> {ok, term()} | {error, term()}.
 
--callback accept(term()) -> ok | {error, term()}.
+-callback accept(term()) -> {ok, gen_tcp:socket() | ssl:sslsocket()} | {error, term()}.
 
 -callback activate_socket(term()) -> ok.
 
@@ -29,6 +30,9 @@
 -callback set_send_timeout(term(), timeout() | undefined) -> ok.
 
 -callback set_acceptor_opts(term()) -> ok.
+
+-ignore_xref(stub/0).
+-ignore_xref(behaviour_info/1).
 
 -ifdef(TEST).
 %% Stub function to fool code coverage

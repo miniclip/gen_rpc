@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 %%% Original concept inspired and some code copied from
 %%% https://erlangcentral.org/wiki/index.php?title=Building_a_Non-blocking_TCP_server_using_OTP_principles
@@ -27,6 +28,7 @@
         driver_mod :: atom(),
         driver_closed :: atom(),
         driver_error :: atom()}).
+-elvis([{elvis_style, state_record_and_type, disable}]).
 
 %%% Supervisor functions
 -export([start_link/1, stop/1]).
@@ -49,10 +51,17 @@
 %%% Process exports
 -export([async_call_worker/5, cast_worker/4]).
 
+-define(IS_TIMEOUT(A), (is_integer(A) andalso A >= 0) orelse A =:= infinity).
+
+-ignore_xref(start_link/1).
+-ignore_xref(stop/1).
+
+-elvis([{elvis_style, god_modules, disable}]).
+
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================
--spec start_link(node_or_tuple()) -> gen_server:startlink_ret().
+-spec start_link(node_or_tuple()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(NodeOrTuple) when ?is_node_or_tuple(NodeOrTuple) ->
     PidName = gen_rpc_helper:make_process_name("client", NodeOrTuple),
     gen_server:start_link({local,PidName}, ?MODULE, {NodeOrTuple}, []).
@@ -66,27 +75,27 @@ stop(NodeOrTuple) when ?is_node_or_tuple(NodeOrTuple) ->
 %%% Server functions
 %%% ===================================================
 %% Simple server call with no args and default timeout values
--spec call(node_or_tuple(), atom() | tuple(), atom() | function()) -> term() | {badrpc,term()} | {badtcp,term()}.
+-spec call(node_or_tuple(), atom() | tuple(), atom()) -> term() | {badrpc,term()} | {badtcp,term()}.
 call(NodeOrTuple, M, F) ->
     call(NodeOrTuple, M, F, [], undefined, undefined).
 
 %% Simple server call with args and default timeout values
--spec call(node_or_tuple(), atom() | tuple(), atom() | function(), list()) -> term() | {badrpc,term()} | {badtcp,term()}.
+-spec call(node_or_tuple(), atom() | tuple(), atom(), list()) -> term() | {badrpc,term()} | {badtcp,term()}.
 call(NodeOrTuple, M, F, A) ->
     call(NodeOrTuple, M, F, A, undefined, undefined).
 
 %% Simple server call with custom receive timeout value
--spec call(node_or_tuple(), atom() | tuple(), atom() | function(), list(), timeout()) -> term() | {badrpc,term()} | {badtcp,term()}.
+-spec call(node_or_tuple(), atom() | tuple(), atom(), list(), timeout() | undefined) -> term() | {badrpc,term()} | {badtcp,term()}.
 call(NodeOrTuple, M, F, A, RecvTO) ->
     call(NodeOrTuple, M, F, A, RecvTO, undefined).
 
 %% Simple server call with custom receive and send timeout values
 %% This is the function that all of the above call
--spec call(node_or_tuple(), atom() | tuple(), atom() | function(), list(), timeout() | undefined, timeout() | undefined) ->
+-spec call(node_or_tuple(), atom() | tuple(), atom(), list(), timeout() | undefined, timeout() | undefined) ->
     term() | {badrpc,term()} | {badtcp,term()}.
 call(NodeOrTuple, M, F, A, RecvTO, SendTO) when ?is_node_or_tuple(NodeOrTuple), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A),
-                                         RecvTO =:= undefined orelse ?is_timeout(RecvTO),
-                                         SendTO =:= undefined orelse ?is_timeout(SendTO) ->
+                                         RecvTO =:= undefined orelse ?IS_TIMEOUT(RecvTO),
+                                         SendTO =:= undefined orelse ?IS_TIMEOUT(SendTO) ->
     %% Create a unique name for the client because we register as such
     PidName = gen_rpc_helper:make_process_name("client", NodeOrTuple),
     case erlang:whereis(PidName) of
@@ -117,66 +126,66 @@ call(NodeOrTuple, M, F, A, RecvTO, SendTO) when ?is_node_or_tuple(NodeOrTuple), 
     end.
 
 %% Simple server cast with no args and default timeout values
--spec cast(node_or_tuple(), atom() | tuple(), atom() | function()) -> true.
+-spec cast(node_or_tuple(), atom() | tuple(), atom()) -> true.
 cast(NodeOrTuple, M, F) ->
     cast(NodeOrTuple, M, F, [], undefined).
 
 %% Simple server cast with args and default timeout values
--spec cast(node_or_tuple(), atom() | tuple(), atom() | function(), list()) -> true.
+-spec cast(node_or_tuple(), atom() | tuple(), atom(), list()) -> true.
 cast(NodeOrTuple, M, F, A) ->
     cast(NodeOrTuple, M, F, A, undefined).
 
 %% Simple server cast with custom send timeout value
 %% This is the function that all of the above casts call
--spec cast(node_or_tuple(), atom() | tuple(), atom() | function(), list(), timeout() | undefined) -> true.
+-spec cast(node_or_tuple(), atom() | tuple(), atom(), list(), timeout() | undefined) -> true.
 cast(NodeOrTuple, M, F, A, SendTO) when ?is_node_or_tuple(NodeOrTuple), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A),
-                                 SendTO =:= undefined orelse ?is_timeout(SendTO) ->
+                                 SendTO =:= undefined orelse ?IS_TIMEOUT(SendTO) ->
     _WorkerPid = erlang:spawn(?MODULE, cast_worker, [NodeOrTuple, {cast,M,F,A}, undefined, SendTO]),
     true.
 
 %% Evaluate {M, F, A} on connected nodes.
--spec eval_everywhere([atom()], atom() | tuple(), atom() | function()) -> abcast.
+-spec eval_everywhere([node_or_tuple()], atom() | tuple(), atom()) -> abcast.
 eval_everywhere(Nodes, M, F) ->
     eval_everywhere(Nodes, M, F, [], undefined).
 
 %% Evaluate {M, F, A} on connected nodes.
--spec eval_everywhere([atom()], atom() | tuple(), atom() | function(), list()) -> abcast.
+-spec eval_everywhere([node_or_tuple()], atom() | tuple(), atom(), list()) -> abcast.
 eval_everywhere(Nodes, M, F, A) ->
     eval_everywhere(Nodes, M, F, A, undefined).
 
 %% Evaluate {M, F, A} on connected nodes.
--spec eval_everywhere([atom()], atom() | tuple(), atom() | function(), list(), timeout() | undefined) -> abcast.
+-spec eval_everywhere([node_or_tuple()], atom() | tuple(), atom(), list(), timeout() | undefined) -> abcast.
 eval_everywhere(Nodes, M, F, A, SendTO) when is_list(Nodes), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A),
-                                             SendTO =:= undefined orelse ?is_timeout(SendTO) ->
+                                             SendTO =:= undefined orelse ?IS_TIMEOUT(SendTO) ->
     _ = [erlang:spawn(?MODULE, cast_worker, [Node, {cast,M,F,A}, abcast, SendTO]) || Node <- Nodes],
     abcast.
 
 %% Simple server async_call with no args
--spec async_call(node_or_tuple(), atom() | tuple(), atom() | function()) -> term() | {badrpc,term()} | {badtcp,term()}.
+-spec async_call(node_or_tuple(), atom() | tuple(), atom()) -> {pid(), reference()}.
 async_call(NodeOrTuple, M, F) ->
     async_call(NodeOrTuple, M, F, []).
 
 %% Simple server async_call with args
--spec async_call(node_or_tuple(), atom() | tuple(), atom() | function(), list()) -> term() | {badrpc,term()} | {badtcp,term()}.
+-spec async_call(node_or_tuple(), atom() | tuple(), atom(), list()) -> {pid(), reference()}.
 async_call(NodeOrTuple, M, F, A) when ?is_node_or_tuple(NodeOrTuple), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A) ->
     Ref = erlang:make_ref(),
     Pid = erlang:spawn(?MODULE, async_call_worker, [NodeOrTuple, M, F, A, Ref]),
     {Pid, Ref}.
 
 %% Simple server yield with key. Delegate to nb_yield. Default timeout form configuration.
--spec yield(tuple()) -> term() | {badrpc,term()}.
+-spec yield({pid(), reference()}) -> term().
 yield(Key) ->
     {value,Result} = nb_yield(Key, infinity),
     Result.
 
 %% Simple server non-blocking yield with key, default timeout value of 0
--spec nb_yield(tuple()) -> {value,term()} | {badrpc,term()}.
+-spec nb_yield({pid(), reference()}) -> {value,term()} | timeout.
 nb_yield(Key)->
     nb_yield(Key, 0).
 
 %% Simple server non-blocking yield with key and custom timeout value
--spec nb_yield(tuple(), timeout()) -> {value,term()} | {badrpc,term()}.
-nb_yield({Pid,Ref}, Timeout) when is_pid(Pid), is_reference(Ref), ?is_timeout(Timeout) ->
+-spec nb_yield({pid(), reference()}, timeout()) -> {value,term()} | timeout.
+nb_yield({Pid,Ref}, Timeout) when is_pid(Pid), is_reference(Ref), ?IS_TIMEOUT(Timeout) ->
     Pid ! {self(), Ref, yield},
     receive
         {Pid, Ref, async_call, Result} ->
@@ -193,7 +202,7 @@ multicall(M, F, A) when is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A) ->
     multicall([node()|gen_rpc:nodes()], M, F, A).
 
 -spec multicall(list() | atom() | tuple(), atom() | tuple(), atom() | list(), list() | timeout()) -> {list(), list()}.
-multicall(M, F, A, Timeout) when is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A), ?is_timeout(Timeout) ->
+multicall(M, F, A, Timeout) when is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A), ?IS_TIMEOUT(Timeout) ->
     multicall([node()|gen_rpc:nodes()], M, F, A, Timeout);
 
 multicall(Nodes, M, F, A) when is_list(Nodes), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A) ->
@@ -201,7 +210,7 @@ multicall(Nodes, M, F, A) when is_list(Nodes), is_atom(M) orelse is_tuple(M), is
     parse_multicall_results(Keys, Nodes, undefined).
 
 -spec multicall(list(), atom() | tuple(), atom(), list(), timeout()) -> {list(), list()}.
-multicall(Nodes, M, F, A, Timeout) when is_list(Nodes), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A), ?is_timeout(Timeout) ->
+multicall(Nodes, M, F, A, Timeout) when is_list(Nodes), is_atom(M) orelse is_tuple(M), is_atom(F), is_list(A), ?IS_TIMEOUT(Timeout) ->
     Keys = [async_call(Node, M, F, A) || Node <- Nodes],
     parse_multicall_results(Keys, Nodes, Timeout).
 
@@ -236,7 +245,7 @@ init({Node}) ->
     ok = gen_rpc_helper:set_optimal_process_flags(),
     case gen_rpc_helper:get_client_config_per_node(Node) of
         {error, Reason} ->
-            ?log(error, "event=external_source_error action=falling_back_to_local reason=\"~s\"", [Reason]),
+            ?log(error, "event=external_source_error action=falling_back_to_local reason=\"~p\"", [Reason]),
             {stop, {badrpc, {external_source_error, Reason}}};
         {Driver, Port} ->
             {DriverMod, DriverClosed, DriverError} = gen_rpc_helper:get_client_driver_options(Driver),
@@ -388,9 +397,10 @@ send_cast(PacketTuple, #state{socket=Socket, driver=Driver, driver_mod=DriverMod
                  [Driver, gen_rpc_helper:socket_to_string(Socket), Reason]),
             {stop, Reason, State};
         ok ->
-            ok = if Activate =:= true -> DriverMod:activate_socket(Socket);
-               true -> ok
-            end,
+            ok = case Activate of
+                     true -> DriverMod:activate_socket(Socket);
+                     _ -> ok
+                 end,
             ?log(debug, "message=cast event=transmission_succeeded driver=~s socket=\"~s\"",
                  [Driver, gen_rpc_helper:socket_to_string(Socket)]),
             {noreply, State, gen_rpc_helper:get_inactivity_timeout(?MODULE)}

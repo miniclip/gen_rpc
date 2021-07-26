@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 -module(local_SUITE).
@@ -12,8 +13,7 @@
 %%% TCP settings
 -include("tcp.hrl").
 
-%%% No need to export anything, everything is automatically exported
-%%% as part of the test profile
+-compile(export_all).
 
 %%% ===================================================
 %%% CT callback functions
@@ -125,6 +125,7 @@ call_anonymous_function(_Config) ->
     {_,"\"call_anonymous_function\""} = gen_rpc:call(?MASTER, erlang, apply,[fun(A) -> {self(), io_lib:print(A)} end,
                                                      ["call_anonymous_function"]]).
 
+-dialyzer({nowarn_function, call_anonymous_undef/1}).
 call_anonymous_undef(_Config) ->
     {badrpc, {'EXIT', {undef,[{os,timestamp_undef,[],[]},_]}}}  = gen_rpc:call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
    ok = ct:pal("Result [call_anonymous_undef]: signal=EXIT Reason={os,timestamp_undef}").
@@ -190,6 +191,7 @@ cast_anonymous_function(_Config) ->
 cast_mfa_undef(_Config) ->
     true = gen_rpc:cast(?MASTER, os, timestamp_undef, []).
 
+-dialyzer({nowarn_function, cast_mfa_exit/1}).
 cast_mfa_exit(_Config) ->
     true = gen_rpc:cast(?MASTER, erlang, apply, [fun() -> exit(die) end, []]).
 
@@ -241,6 +243,7 @@ async_call_anonymous_function(_Config) ->
                                     [nb_yield_key_anonymous_func]]),
     {value, {_, "nb_yield_key_anonymous_func"}} = gen_rpc:nb_yield(NBYieldKey, 500).
 
+-dialyzer({nowarn_function, async_call_anonymous_undef/1}).
 async_call_anonymous_undef(_Config) ->
     YieldKey = gen_rpc:async_call(?MASTER, erlang, apply, [fun() -> os:timestamp_undef() end, []]),
     {badrpc, {'EXIT', {undef,[{os,timestamp_undef,[],[]},_]}}} = gen_rpc:yield(YieldKey),

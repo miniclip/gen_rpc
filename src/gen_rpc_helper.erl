@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 -module(gen_rpc_helper).
@@ -37,6 +38,11 @@
         get_inactivity_timeout/1,
         get_async_call_inactivity_timeout/0]).
 
+-ignore_xref(get_control_receive_timeout/0).
+-ignore_xref(start_link/1).
+-ignore_xref(stop/1).
+-ignore_xref(waiting_for_connection/3).
+
 %%% ===================================================
 %%% Public API
 %%% ===================================================
@@ -66,7 +72,7 @@ socket_to_string(Socket) when is_tuple(Socket) ->
     end.
 
 %% Return the remote Erlang hostname
--spec host_from_node(node()) -> string().
+-spec host_from_node(node()) -> nonempty_string().
 host_from_node(Node) when is_atom(Node) ->
     NodeStr = atom_to_list(Node),
     [_Name, Host] = string:tokens(NodeStr, [$@]),
@@ -122,7 +128,7 @@ is_driver_enabled(Driver) when is_atom(Driver) ->
             true
     end.
 
--spec get_server_driver_options(atom()) -> tuple().
+-spec get_server_driver_options(atom()) -> {atom(), any(), atom(), atom()}.
 get_server_driver_options(Driver) when is_atom(Driver) ->
     DriverStr = erlang:atom_to_list(Driver),
     DriverMod = erlang:list_to_atom("gen_rpc_driver_" ++ DriverStr),
@@ -132,7 +138,7 @@ get_server_driver_options(Driver) when is_atom(Driver) ->
     {ok, DriverPort} = application:get_env(?APP, PortSetting),
     {DriverMod, DriverPort, ClosedMsg, ErrorMsg}.
 
--spec get_client_driver_options(atom()) -> tuple().
+-spec get_client_driver_options(atom()) -> {atom(), atom(), atom()}.
 get_client_driver_options(Driver) when is_atom(Driver) ->
     DriverStr = erlang:atom_to_list(Driver),
     DriverMod = erlang:list_to_atom("gen_rpc_driver_" ++ DriverStr),

@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 -module(gen_rpc_sup).
@@ -19,7 +20,11 @@
 %%% ===================================================
 %%% Supervisor functions
 %%% ===================================================
+-if(?OTP_RELEASE > 23).
 -spec start_link() -> supervisor:startlink_ret().
+-else.
+-spec start_link() -> {ok, pid()} | ignore | {error, {already_started, pid()} | {shutdown, term()} | term()}.
+-endif.
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 

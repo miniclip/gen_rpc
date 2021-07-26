@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 %%% Default TCP options
@@ -17,23 +18,6 @@
         {keepalive,true}, % Keep our channel open
         {tos,72}, % Deliver immediately
         {active,false}]). % Retrieve data from socket upon request
-
-%%% Default TCP options
--define(ACCEPTOR_DEFAULT_TCP_OPTS, [binary,
-        {packet,4},
-        {exit_on_close,true},
-        {active,once}]). % Retrieve data from socket upon request
-
-%%% The TCP options that should be copied from the listener to the acceptor
--define(ACCEPTOR_COPY_TCP_OPTS, [nodelay,
-        show_econnreset,
-        send_timeout_close,
-        delay_send,
-        linger,
-        reuseaddr,
-        keepalive,
-        tos,
-        active]).
 
 -define(DARWIN_SOL_SOCKET, 16#ffff).
 -define(DARWIN_SO_KEEPALIVE, 16#0008).

@@ -87,9 +87,11 @@ Finally, `$PROJECT` is the name of this project.
 To setup your clone and be able to rebase when requested, run the
 following commands:
 
-    $ git clone $ORIGIN_URL
-    $ cd $PROJECT
-    $ git remote add upstream $UPSTREAM_URL
+```bash
+$ git clone $ORIGIN_URL
+$ cd $PROJECT
+$ git remote add upstream $UPSTREAM_URL
+```
 
 ### Branching
 
@@ -97,26 +99,34 @@ You **SHOULD** base your branch on _develop_.
 
 The first step is therefore to checkout the branch in question:
 
-    $ git checkout develop
+```bash
+$ git checkout develop
+```
 
 The next step is to update the branch to the current version from
 _upstream_:
 
-    $ git fetch upstream
-    $ git rebase upstream/develop
+```bash
+$ git fetch upstream
+$ git rebase upstream/develop
+```
 
 This last command may fail and ask you to stash your changes. When
 that happens, run the following sequence of commands:
 
-    $ git stash
-    $ git rebase upstream/develop
-    $ git stash pop
+```bash
+$ git stash
+$ git rebase upstream/develop
+$ git stash pop
+```
 
 The final step is to create a new branch you can work in. The name
 of the new branch is up to you, there is no particular requirement.
 Replace `$BRANCH` with the branch name you came up with:
 
-    $ git checkout -B $BRANCH
+```bash
+$ git checkout -B $BRANCH
+```
 
 _Your local copy_ is now ready.
 
@@ -150,11 +160,15 @@ fail when you finish.
 
 You can use the following command to run Dialyzer:
 
-    $ make dialyzer
+```bash
+$ make dialyzer
+```
 
 To test run:
 
-    $ make test
+```bash
+$ make test
+```
 
 You can then open Common Test logs in `logs/`.
 
@@ -163,12 +177,16 @@ you can commit your changes.
 
 First you need to add your changes:
 
-    $ git add src/file_you_edited.erl
+```bash
+$ git add src/file_you_edited.erl
+```
 
 If you want an interactive session, allowing you to filter
 out changes that have nothing to do with this commit:
 
-    $ git add -p
+```bash
+$ git add -p
+```
 
 You **MUST** put all related changes inside a single commit. The
 general rule is that all commits must pass tests. Fix one bug
@@ -180,7 +198,9 @@ Finally once all changes are added you can commit. This
 command will open the editor of your choice where you can
 put a proper commit title and message.
 
-    $ git commit
+```bash
+$ git commit
+```
 
 Do not use the `-m` option as it makes it easy to break the
 following rules:
@@ -207,14 +227,18 @@ commits to keep, squash, edit and so on. To rebase, you need
 to give the original commit before you made your changes. If
 you only did two changes, you can use the shortcut form `HEAD^^`:
 
-    $ git rebase -i HEAD^^
+```bash
+$ git rebase -i HEAD^^
+```
 
 ### Submitting the pull request
 
 You **MUST** push your branch to your fork on GitHub. Replace
 `$BRANCH` with your branch name:
 
-    $ git push origin $BRANCH
+```bash
+$ git push origin $BRANCH
+```
 
 You can then submit the pull request using the GitHub interface.
 You **SHOULD** provide an explanatory message and refer to any
@@ -231,7 +255,9 @@ In either case you do not need to close the pull request. You
 can just push your changes again and, if needed, force them.
 This will update the pull request automatically.
 
-    $ git push -f origin $BRANCH
+```bash
+$ git push -f origin $BRANCH
+```
 
 ### Merging
 

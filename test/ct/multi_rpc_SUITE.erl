@@ -2,6 +2,7 @@
 %%% ex: set ft=erlang fenc=utf-8 sts=4 ts=4 sw=4 et:
 %%%
 %%% Copyright 2015 Panagiotis Papadomitsos. All Rights Reserved.
+%%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
 -module(multi_rpc_SUITE).
@@ -10,8 +11,7 @@
 %%% CT Macros
 -include_lib("test/include/ct.hrl").
 
-%%% No need to export anything, everything is automatically exported
-%%% as part of the test profile
+-compile(export_all).
 
 %%% ===================================================
 %%% CT callback functions
