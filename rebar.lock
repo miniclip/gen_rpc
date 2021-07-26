@@ -1,11 +1,11 @@
 {"1.2.0",
 [{<<"hut">>,{pkg,<<"hut">>,<<"1.3.0">>},0},
- {<<"ssl_verify_hostname">>,{pkg,<<"ssl_verify_hostname">>,<<"1.0.6">>},0}]}.
+ {<<"ssl_verify_fun">>,{pkg,<<"ssl_verify_fun">>,<<"1.1.6">>},0}]}.
 [
 {pkg_hash,[
  {<<"hut">>, <<"71F2F054E657C03F959CF1ACC43F436EA87580696528CA2A55C8AFB1B06C85E7">>},
- {<<"ssl_verify_hostname">>, <<"45866D958D9AE51CFE8FEF0050AB8054D25CBA23ACE43B88046092AA2C714645">>}]},
+ {<<"ssl_verify_fun">>, <<"CF344F5692C82D2CD7554F5EC8FD961548D4FD09E7D22F5B62482E5AEAEBD4B0">>}]},
 {pkg_hash_ext,[
  {<<"hut">>, <<"7E15D28555D8A1F2B5A3A931EC120AF0753E4853A4C66053DB354F35BF9AB563">>},
- {<<"ssl_verify_hostname">>, <<"72B2FC8A8E23D77EED4441137FEFA491BBF4A6DC52E9C0045F3F8E92E66243B5">>}]}
+ {<<"ssl_verify_fun">>, <<"BDB0D2471F453C88FF3908E7686F86F9BE327D065CC1EC16FA4540197EA04680">>}]}
 ].
