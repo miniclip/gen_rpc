@@ -49,7 +49,8 @@
         {keepalive,true}, % Keep our channel open
         {tos,72}, % Deliver immediately
         {active,false},
-        %% SSL options
+        %% SSL options.
+        %% Source of `ciphers' and `versions': https://wiki.mozilla.org/Security/Server_Side_TLS
         {ciphers,[
             % tlsv1.3
             "TLS_AES_128_GCM_SHA256",
