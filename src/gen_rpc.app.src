@@ -5,25 +5,26 @@
 %%% Copyright 2021 Miniclip. All Rights Reserved.
 %%%
 
-{application, gen_rpc,
-    [{description, "A scalable RPC library for Erlang-VM based languages"},
+{application, gen_rpc, [
+    {description, "A scalable RPC library for Erlang-VM based languages"},
     {vsn, git},
+    {registered, []},
     {mod, {gen_rpc_app, []}},
-    {registered, [gen_rpc_dispatcher]},
-    {maintainers, ["Miniclip"]},
-    {licenses, ["Apache 2.0"]},
-    {links, [{"Github", "https://github.com/miniclip/gen_rpc"}]},
-    {files, [
-        "LICENSE",
-        "README.md",
-        "CHANGELOG.md",
-        "include",
-        "package.exs",
-        "rebar.config",
-        "src"
-    ]},
     {pkg_name, mc_gen_rpc},
-    {applications, [kernel, stdlib, crypto, asn1, public_key, ssl]},
+    {licenses, ["Apache License, Version 2.0"]},
+    {links, [{"Github", "https://github.com/miniclip/gen_rpc"}]},
+
+    {applications, [
+        % OTP dependencies
+        kernel,
+        stdlib,
+        crypto,
+        asn1,
+        public_key,
+        ssl
+        % External dependencies
+    ]},
+
     {env,[
         %% TCP server port. Set to false to disable
         {tcp_server_port, 5369},
@@ -82,6 +83,5 @@
         {socket_keepalive_interval, 5},
         %% Probes lost to close the connection
         {socket_keepalive_count, 2}
-    ]},
-    {modules, []}]
-}.
+    ]}
+]}.
