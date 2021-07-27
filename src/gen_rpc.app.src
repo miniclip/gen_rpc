@@ -21,8 +21,10 @@
         crypto,
         asn1,
         public_key,
-        ssl
+        ssl,
         % External dependencies
+        hut,
+        ssl_verify_fun
     ]},
 
     {env,[
