@@ -14,9 +14,9 @@
 %%% Include the HUT library
 -include_lib("hut/include/hut.hrl").
 %%% Include helpful guard macros
--include("guards.hrl").
+-include("../guards.hrl").
 %%% Include helpful guard macros
--include("types.hrl").
+-include("../types.hrl").
 
 %%% Supervisor functions
 -export([start_link/0]).

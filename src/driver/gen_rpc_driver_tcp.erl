@@ -16,11 +16,11 @@
 %%% Include the HUT library
 -include_lib("hut/include/hut.hrl").
 %%% Include this library's name macro
--include("app.hrl").
+-include("../app.hrl").
 %%% Include TCP macros
--include("tcp.hrl").
+-include("../tcp.hrl").
 %%% Include helpful guard macros
--include("guards.hrl").
+-include("../guards.hrl").
 
 %%% Public API
 -export([connect/2,
